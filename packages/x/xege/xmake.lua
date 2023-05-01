@@ -8,9 +8,11 @@ package("xege")
 
 	-- add_versions("20.08", "40bca13799e512b14570c41f3d285eca616ca9b1")
 
+
 	add_deps("cmake")
 	add_deps("libpng", "zlib")
-	-- set_sourcedir(path.join(os.scriptdir()))
+	-- set_sourcedir(".")
+
 	on_load(function (package)
 		if package:is_plat("windows") then
 			package:config("vs_runtime")
@@ -23,16 +25,31 @@ package("xege")
 		table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
 		table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
 		import("package.tools.cmake").install(package, configs)
+		os.cp("src/*.h", package:installdir("include"))
+		os.cp("src/ege", package:installdir("include/ege"))
+
+		package:add("includedirs", "include")
+		package:add("linkdirs", "lib")
+		-- package:add("links", "graphics64")
+
+		-- 不知道为什么，好像mingw编译器导出的选项有问题
+		-- 现在只有 VS 的编译是正常的
+		if package:is_plat("mingw") then
+			local third_lib = {"gdiplus","gdi32","imm32","msimg32","ole32","oleaut32","uuid","winmm"}
+			for _,v in pairs(third_lib) do
+				package:add("links", v)
+			end
+			os.cp(package:cachedir().."\\build_"..package:buildhash():sub(1,8).."\\libgraphics*.a", package:installdir("lib"))
+		end
 	end)
+
+	-- 测试库安装是否正常
 	on_test(function (package)
-	-- 这里本该写一些测试代码，但是好像存在一些问题
-	--[==[
+		-- assert(package:has_cxxfuncs("initgraph", {includes = "graphics.h"}))
 		assert(package:check_cxxsnippets({test = [[
-			#include "graphics.h"
+			#include <graphics.h>
 			int main (int argc, char *argv []) {
-				// 手动刷新模式
 				setinitmode (INIT_RENDERMANUAL);
-				// 界面分辨率
 				initgraph (800, 600);
 				line(100,100,200,200);
 				getch();
@@ -40,6 +57,5 @@ package("xege")
 				return 0;
 			}
 		]]}))
-	--]==]
 	end)
 package_end()
