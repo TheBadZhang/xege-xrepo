@@ -48,6 +48,8 @@ package("xege")
 		end
 
 		-- 导出构建出来的库文件到安装路径中
+		print("安装路径", package:installdir("lib"))
+		print("缓存路径", package:cachedir())
 		if package:is_plat("mingw") then
 			os.cp(package:cachedir().."\\build_"..package:buildhash():sub(1,8).."\\libgraphics*.a", package:installdir("lib"))
 		end
