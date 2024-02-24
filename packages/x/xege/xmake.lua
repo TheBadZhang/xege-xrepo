@@ -11,7 +11,6 @@ package("xege")
 
 	add_deps("cmake")
 	add_deps("libpng", "zlib")
-	set_sourcedir(".")
 
 	on_load(function (package)
 
@@ -24,7 +23,6 @@ package("xege")
 		elseif package:is_plat("mingw") then
 			local third_lib = {"gdiplus","gdi32","imm32","msimg32","ole32","oleaut32","uuid","winmm"}
 			for _,v in pairs(third_lib) do
-				print(v)
 				package:add("syslinks", v)
 			end
 		end
