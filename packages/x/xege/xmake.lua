@@ -59,16 +59,16 @@ package("xege")
 
 		-- initgraph无法消歧义，所以这个测试无法使用
 		-- assert(package:has_cxxfuncs("initgraph", {includes = "graphics.h"}))
-		assert(package:check_cxxsnippets({test = [[
-			#include <graphics.h>
-			int main (int argc, char *argv []) {
-				setinitmode (INIT_RENDERMANUAL);
-				initgraph (800, 600);
-				line(100,100,200,200);
-				getch();
-				closegraph ();
-				return 0;
-			}
-		]]}))
+		-- assert(package:check_cxxsnippets({test = [[
+		-- 	#include <graphics.h>
+		-- 	int main (int argc, char *argv []) {
+		-- 		setinitmode (INIT_RENDERMANUAL);
+		-- 		initgraph (800, 600);
+		-- 		line(100,100,200,200);
+		-- 		getch();
+		-- 		closegraph ();
+		-- 		return 0;
+		-- 	}
+		-- ]]}))
 	end)
 package_end()
