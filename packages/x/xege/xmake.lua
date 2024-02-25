@@ -11,6 +11,7 @@ package("xege")
 
 	add_deps("cmake")
 	add_deps("libpng", "zlib")
+	-- set_sourcedir(".")
 
 	on_load(function (package)
 
@@ -29,7 +30,7 @@ package("xege")
 	end)
 
 	on_install(function (package)
-		-- print("脚本路径", package:scriptdir())
+		print("脚本路径", package:scriptdir())
 		-- print(package:cachedir().."\\build_"..package:buildhash():sub(1,8).."\\libgraphics*.a")
 		local configs = {}
 
@@ -47,11 +48,15 @@ package("xege")
 			os.cp(v, include_dir)
 		end
 
-		-- 导出构建出来的库文件到安装路径中
-		-- print("安装路径", package:installdir("lib"))
-		-- print("缓存路径", package:cachedir())
+		-- 导出构建出来的库文件
+		print("安装路径:", package:installdir())
+		print("缓存路径:", package:cachedir())
+
 		if package:is_plat("mingw") then
-			os.cp(package:cachedir().."\\source\\build_"..package:buildhash():sub(1,8).."\\libgraphics*.a", package:installdir("lib"))
+			import("lib.detect.find_file")
+			local library = find_file("libgraphics64.a", {package:cachedir().."/**"})
+			print("库文件路径:", library)
+			os.cp(library, package:installdir("lib"))
 		end
 	end)
 
@@ -59,16 +64,16 @@ package("xege")
 
 		-- initgraph无法消歧义，所以这个测试无法使用
 		-- assert(package:has_cxxfuncs("initgraph", {includes = "graphics.h"}))
-		-- assert(package:check_cxxsnippets({test = [[
-		-- 	#include <graphics.h>
-		-- 	int main (int argc, char *argv []) {
-		-- 		setinitmode (INIT_RENDERMANUAL);
-		-- 		initgraph (800, 600);
-		-- 		line(100,100,200,200);
-		-- 		getch();
-		-- 		closegraph ();
-		-- 		return 0;
-		-- 	}
-		-- ]]}))
+		assert(package:check_cxxsnippets({test = [[
+			#include <graphics.h>
+			int main (int argc, char *argv []) {
+				setinitmode (INIT_RENDERMANUAL);
+				initgraph (800, 600);
+				line(100,100,200,200);
+				getch();
+				closegraph ();
+				return 0;
+			}
+		]]}))
 	end)
 package_end()
